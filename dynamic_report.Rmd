@@ -1,0 +1,68 @@
+---
+title: My dynamic report
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+```
+
+```{css}
+h2 {
+  color: #3366cc;
+  font-weight: bold;
+}
+
+p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+body {
+  background-color: #fafafa;
+}
+```
+
+## Dynamic Analysis of YouTube Ad Types and Duration
+This dynamic report is based on YouTube push ad data I've recorded over the past week.
+
+Each time I see an ad, I record the ad type, duration, and whether it's the first time I've seen it that day.
+
+Charts and statistics automatically update as the data I enter into my Google Sheet is updated.
+
+```{r}
+library(tidyverse)
+
+logged_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQxuPzFbkPQDA4Negn34-vi7Dt8JUo1pF6g6yp3k1WgnTYirtu8ACsjzcljyJgtuISSvGiIsdwmtz8o/pub?output=csv")
+
+latest_data <- logged_data |>
+  rename(
+    timestamp = `时间戳记`,
+    ad_type = `What type of advertisement did you just see?`,
+    duration = `How many seconds is the advertisement?`,
+    first_time = `Is this the first time you've seen this ad today?`
+  )
+```
+
+In the ads I recorded, the average duration was **`r round(mean(latest_data$duration), 1)`** seconds,  
+while the longest ad reached **`r max(latest_data$duration)`** seconds.
+
+```{r}
+ggplot(latest_data, aes(x = ad_type)) +
+  geom_bar(fill = "skyblue") +
+  labs(
+    title = "Distribution of Advertisement Types",
+    x = "Advertisement Type",
+    y = "Count"
+  )
+```
+
+```{r}
+ggplot(latest_data, aes(x = first_time)) +
+  geom_bar(fill = "pink") +
+  labs(
+    title = "First Time Seeing the Advertisement?",
+    x = "First Time?",
+    y = "Count"
+  )
+```
